@@ -58,5 +58,5 @@ if __name__ == "__main__":
         save_top_k=1,
     )
 
-    trainer = pl.Trainer(max_epochs=cfg.epochs, gpus=1, callbacks=[checkpoint_callback])
+    trainer = pl.Trainer(max_epochs=cfg.epochs, accelerator="gpu", callbacks=[checkpoint_callback])
     trainer.fit(model)
