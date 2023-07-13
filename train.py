@@ -8,8 +8,6 @@ import pytorch_lightning as pl
 from config import Config
 from model import CSRNet
 from dataset import create_train_dataloader, create_test_dataloader
-from utils import denormalize
-
 
 class CSRNetLightning(pl.LightningModule):
     def __init__(self, config):

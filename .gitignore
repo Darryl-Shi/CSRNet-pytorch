@@ -107,3 +107,6 @@ venv.bak/
 .vscode/
 
 data/
+lightning_logs/version_1/events.out.tfevents.1689261663.DESKTOP-KQTG4QB.907.0
+.gitignore
+runs/Jul13_23-20-59_DESKTOP-KQTG4QB/events.out.tfevents.1689261659.DESKTOP-KQTG4QB
