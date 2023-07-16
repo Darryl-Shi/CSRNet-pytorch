@@ -13,6 +13,7 @@ class Config():
         self.batch_size   = 1                   # batch size
         self.epochs       = 2000                # epochs
         self.checkpoints  = '/mnt/disks/persist/checkpoints/pw'     # checkpoints dir
+        self.project      = 'crowd-counting'
         self.__mkdir(self.checkpoints)
 
     def __mkdir(self, path):

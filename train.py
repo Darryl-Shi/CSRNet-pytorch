@@ -49,8 +49,7 @@ import os
 if __name__ == "__main__":
     cfg = Config()
     model = CSRNetLightning(cfg)
-    wandb_logger = WandbLogger()
-    wandb_logger['project'] = 'crowd-counting'
+    wandb_logger = WandbLogger(project=cfg.project)
 
     if os.environ.get("ENV") != "TEST":
       checkpoint_callback = pl.callbacks.ModelCheckpoint(
