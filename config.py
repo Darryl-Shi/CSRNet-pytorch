@@ -13,8 +13,8 @@ class Config():
         self.batch_size   = 1                   # batch size
         self.epochs       = 2000                # epochs
         self.checkpoints  = './checkpoints'     # checkpoints dir
-        self.project      = 'crowd-counting'
         self.__mkdir(self.checkpoints)
+        self.writer       = SummaryWriter() 
 
     def __mkdir(self, path):
         '''
