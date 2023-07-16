@@ -9,6 +9,7 @@ from pytorch_lightning.loggers import WandbLogger
 from config import Config
 from model import CSRNet
 from dataset import create_train_dataloader, create_test_dataloader
+from utils import denormalize
 
 if torch.cuda.is_available():
     torch.set_float32_matmul_precision('medium')
@@ -35,6 +36,9 @@ class CSRNetLightning(pl.LightningModule):
         et_densitymap = self(image).detach()
         mae = abs(et_densitymap.data.sum() - gt_densitymap.data.sum())
         self.log('val_mae', mae)
+        self.log_image(str(self.current_epoch)+'/Image', denormalize(image[0].cpu()))
+        self.log_image(str(self.current_epoch)+'/Estimate density count:'+ str('%.2f'%(et_densitymap[0].cpu().sum())), et_densitymap[0]/torch.max(et_densitymap[0]))
+        self.log_image(str(self.current_epoch)+'/Ground Truth count:'+ str('%.2f'%(gt_densitymap[0].cpu().sum())), gt_densitymap[0]/torch.max(gt_densitymap[0]))
         return mae
 
     def configure_optimizers(self):
