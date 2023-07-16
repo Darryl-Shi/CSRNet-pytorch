@@ -7,6 +7,7 @@ import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
 from torchvision import transforms
 import wandb
+import os
 
 from config import Config
 from model import CSRNet
@@ -15,9 +16,6 @@ from utils import denormalize
 
 if torch.cuda.is_available():
     torch.set_float32_matmul_precision('medium')
-
-
-t = transforms.ToPILImage()
 
 class CSRNetLightning(pl.LightningModule):
     def __init__(self, config):
@@ -33,17 +31,20 @@ class CSRNetLightning(pl.LightningModule):
         image, gt_densitymap = batch['image'], batch['densitymap']
         et_densitymap = self(image)
         loss = self.criterion(et_densitymap, gt_densitymap)
-        cfg.writer.add_scalar('Train_Loss', loss, str(self.current_epoch))
+        self.log('train_loss', loss)
+        cfg.writer.add_scalar('train_loss', loss, str(self.current_epoch))
         return loss
 
     def validation_step(self, batch, batch_idx):
         image, gt_densitymap = batch['image'], batch['densitymap']
         et_densitymap = self(image).detach()
         mae = abs(et_densitymap.data.sum() - gt_densitymap.data.sum())
-        cfg.writer.add_scalar('Val_MAE', mae, self.current_epoch)
-        cfg.writer.add_image(str(self.current_epoch)+'/Image', denormalize(image[0].cpu()))
-        cfg.writer.add_image(str(self.current_epoch)+'/Estimate density count:'+ str('%.2f'%(et_densitymap[0].cpu().sum())), et_densitymap[0]/torch.max(et_densitymap[0]))
-        cfg.writer.add_image(str(self.current_epoch)+'/Ground Truth count:'+ str('%.2f'%(gt_densitymap[0].cpu().sum())), gt_densitymap[0]/torch.max(gt_densitymap[0]))
+        self.log('val_mae', mae)
+        cfg.writer.add_scalar('val_loss', mae, self.current_epoch)
+        if batch_idx == 0:
+            cfg.writer.add_image(str(self.current_epoch)+'/Image', denormalize(image[0].cpu()))
+            cfg.writer.add_image(str(self.current_epoch)+'/Estimate density count:'+ str('%.2f'%(et_densitymap[0].cpu().sum())), et_densitymap[0]/torch.max(et_densitymap[0]))
+            cfg.writer.add_image(str(self.current_epoch)+'/Ground Truth count:'+ str('%.2f'%(gt_densitymap[0].cpu().sum())), gt_densitymap[0]/torch.max(gt_densitymap[0]))
         return mae
 
     def configure_optimizers(self):

@@ -82,7 +82,7 @@ def create_train_dataloader(roots, use_flip, batch_size):
       datasets.append(dataset)
 
     dataset = torch.utils.data.ConcatDataset(datasets)
-    dataloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True)
+    dataloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,num_workers=int(os.cpu_count()//2))
     return dataloader
 
 def create_test_dataloader(roots):
@@ -104,7 +104,7 @@ def create_test_dataloader(roots):
       datasets.append(dataset)
 
     dataset = torch.utils.data.ConcatDataset(datasets)
-    dataloader = torch.utils.data.DataLoader(dataset,batch_size=1,shuffle=False)
+    dataloader = torch.utils.data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=int(os.cpu_count()//2))
     return dataloader
 
 #----------------------------------#
