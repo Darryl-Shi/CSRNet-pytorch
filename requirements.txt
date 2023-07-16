@@ -1,4 +1,5 @@
 h5py==3.9.0
+cupy
 matplotlib==3.7.2
 numpy==1.24.2
 Pillow==10.0.0
