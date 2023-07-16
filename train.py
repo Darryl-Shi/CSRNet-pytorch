@@ -5,6 +5,7 @@ import torch.nn as nn
 from tqdm import tqdm
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
+from torchvision import transforms
 
 from config import Config
 from model import CSRNet
@@ -36,9 +37,9 @@ class CSRNetLightning(pl.LightningModule):
         et_densitymap = self(image).detach()
         mae = abs(et_densitymap.data.sum() - gt_densitymap.data.sum())
         self.log('val_mae', mae)
-        wandb_logger.log_image(str(self.current_epoch)+'/Image', denormalize(image[0].cpu()))
-        wandb_logger.log_image(str(self.current_epoch)+'/Estimate density count:'+ str('%.2f'%(et_densitymap[0].cpu().sum())), et_densitymap[0]/torch.max(et_densitymap[0]))
-        wandb_logger.log_image(str(self.current_epoch)+'/Ground Truth count:'+ str('%.2f'%(gt_densitymap[0].cpu().sum())), gt_densitymap[0]/torch.max(gt_densitymap[0]))
+        wandb_logger.log_image(str(self.current_epoch)+'/Image', transforms.ToPILImage(denormalize(image[0].cpu())))
+        wandb_logger.log_image(str(self.current_epoch)+'/Estimate density count:'+ str('%.2f'%(et_densitymap[0].cpu().sum())), transforms.ToPILImage(et_densitymap[0]/torch.max(et_densitymap[0])))
+        wandb_logger.log_image(str(self.current_epoch)+'/Ground Truth count:'+ str('%.2f'%(gt_densitymap[0].cpu().sum())), transforms.ToPILImage(gt_densitymap[0]/torch.max(gt_densitymap[0])))
         return mae
 
     def configure_optimizers(self):
