@@ -16,7 +16,7 @@ class CSRNet(nn.Module):
             self.backend_feat, in_channels=512, dilation=True)
         self.output_layer = nn.Conv2d(64, 1, kernel_size=1)
         if not load_weights:
-            mod = models.vgg16(pretrained=True, weights='VGG16_Weights.IMAGENET1K_V1')
+            mod = models.vgg16(weights='VGG16_Weights.IMAGENET1K_V1')
             self._initialize_weights()
             fsd = collections.OrderedDict()
             # 10 convlution *(weight, bias) = 20 parameters
