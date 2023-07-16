@@ -59,5 +59,5 @@ if __name__ == "__main__":
         mode='min',
         save_top_k=1,
       )
-      trainer = pl.Trainer(max_epochs=cfg.epochs, accelerator="tpu", callbacks=[checkpoint_callback], logger=wandb_logger)
+      trainer = pl.Trainer(max_epochs=cfg.epochs, accelerator="tpu", devices="auto", callbacks=[checkpoint_callback], logger=wandb_logger)
       trainer.fit(model)
