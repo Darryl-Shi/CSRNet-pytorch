@@ -12,7 +12,7 @@ class Config():
         self.lr           = 1e-5                # learning rate
         self.batch_size   = 1                   # batch size
         self.epochs       = 2000                # epochs
-        self.checkpoints  = './checkpoints'     # checkpoints dir
+        self.checkpoints  = '/mnt/disks/persist/checkpoints/pw'     # checkpoints dir
         self.__mkdir(self.checkpoints)
 
     def __mkdir(self, path):
