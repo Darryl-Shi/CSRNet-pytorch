@@ -59,7 +59,7 @@ class CrowdDataset(torch.utils.data.Dataset):
         dmap = Image.fromarray(dmap)
         return img, dmap
 
-def create_train_dataloader(root, use_flip, batch_size):
+def create_train_dataloader(roots, use_flip, batch_size):
     '''
     Create train dataloader.
     root: the dataset root.
@@ -73,12 +73,19 @@ def create_train_dataloader(root, use_flip, batch_size):
     main_trans = Compose(main_trans_list)
     img_trans = Compose([ToTensor(), Normalize(mean=[0.5,0.5,0.5],std=[0.225,0.225,0.225])])
     dmap_trans = ToTensor()
-    dataset = CrowdDataset(root=root, phase='train', main_transform=main_trans, 
-                    img_transform=img_trans,dmap_transform=dmap_trans)
+    # dataset = CrowdDataset(root=root, phase='train', main_transform=main_trans, 
+                    # img_transform=img_trans,dmap_transform=dmap_trans)
+		# create a dataset for each root in roots, and concatenate them
+    datasets = []
+    for root in roots:
+      dataset = CrowdDataset(root=root, phase='train', main_transform=main_trans, img_transform=img_trans,dmap_transform=dmap_trans)
+      datasets.append(dataset)
+
+    dataset = torch.utils.data.ConcatDataset(datasets)
     dataloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True)
     return dataloader
 
-def create_test_dataloader(root):
+def create_test_dataloader(roots):
     '''
     Create train dataloader.
     root: the dataset root.
@@ -88,8 +95,15 @@ def create_test_dataloader(root):
     main_trans = Compose(main_trans_list)
     img_trans = Compose([ToTensor(), Normalize(mean=[0.5,0.5,0.5],std=[0.225,0.225,0.225])])
     dmap_trans = ToTensor()
-    dataset = CrowdDataset(root=root, phase='test', main_transform=main_trans, 
-                    img_transform=img_trans,dmap_transform=dmap_trans)
+    # dataset = CrowdDataset(root=root, phase='test', main_transform=main_trans, 
+    #                 img_transform=img_trans,dmap_transform=dmap_trans)
+    # create a dataset for each root in roots, and concatenate them
+    datasets = []
+    for root in roots:
+      dataset = CrowdDataset(root=root, phase='test', main_transform=main_trans, img_transform=img_trans,dmap_transform=dmap_trans)
+      datasets.append(dataset)
+
+    dataset = torch.utils.data.ConcatDataset(datasets)
     dataloader = torch.utils.data.DataLoader(dataset,batch_size=1,shuffle=False)
     return dataloader
 
