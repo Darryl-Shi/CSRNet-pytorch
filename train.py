@@ -44,17 +44,18 @@ class CSRNetLightning(pl.LightningModule):
         return create_test_dataloader(self.config.dataset_root)
 
 
+import os
 if __name__ == "__main__":
     cfg = Config()
     model = CSRNetLightning(cfg)
 
-    checkpoint_callback = pl.callbacks.ModelCheckpoint(
+    if os.environ.get("ENV") != "TEST":
+      checkpoint_callback = pl.callbacks.ModelCheckpoint(
         dirpath=cfg.checkpoints,
         filename='{epoch}-{val_mae:.2f}',
         monitor='val_mae',
         mode='min',
         save_top_k=1,
-    )
-
-    trainer = pl.Trainer(max_epochs=cfg.epochs, accelerator="gpu", callbacks=[checkpoint_callback])
-    trainer.fit(model)
+      )
+      trainer = pl.Trainer(max_epochs=cfg.epochs, accelerator="gpu", callbacks=[checkpoint_callback])
+      trainer.fit(model)
