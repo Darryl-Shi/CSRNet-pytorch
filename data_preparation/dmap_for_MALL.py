@@ -1,9 +1,10 @@
 #%%
 import numpy as np
 from scipy.io import loadmat
-from scipy.ndimage.filters import gaussian_filter
+from cupyx.scipy.ndimage import gaussian_filter
 import matplotlib.pyplot as plt
 import os
+import cupy
 from tqdm import tqdm
 
 
@@ -24,12 +25,13 @@ def generate_perspective_densitymap(image, points, p_map):
     points_quantity = len(points_coordinate)
 
     # generate ground truth density map
-    densitymap = np.zeros((image_h, image_w))
+    densitymap = cupy.zeros((image_h, image_w))
     for point in points_coordinate:
         c = min(int(round(point[0])),image_w-1)
         r = min(int(round(point[1])),image_h-1)
         point2density = np.zeros((image_h, image_w), dtype=np.float32)
         point2density[r,c] = 1
+        point2density = cupy.asarray(point2density)  # convert to cupy.ndarray
         sigma = int(15 / p_map[r,c])
         densitymap += gaussian_filter(point2density, sigma=sigma, mode='constant')
 
@@ -51,15 +53,8 @@ if __name__ == '__main__':
         if '.jpg' not in image_name:
             continue
         image = plt.imread(os.path.join('./frames', image_name))
-        plt.imshow(image)
-        plt.figure()
         points = frame[i][0][0][0]
         densitymap = generate_perspective_densitymap(image, points, p_map)
+        densitymap = cupy.asnumpy(densitymap)  # convert back to numpy.ndarray
         np.save('./densitymaps/'+image_name.replace('.jpg','.npy'),densitymap)
     print('finished.')
-    
-    
-    
-
-
-# %%
