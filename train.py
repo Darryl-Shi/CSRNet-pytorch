@@ -10,6 +10,9 @@ from config import Config
 from model import CSRNet
 from dataset import create_train_dataloader, create_test_dataloader
 
+if torch.cuda.is_available():
+    torch.set_float32_matmul_precision('medium' | 'high')
+
 class CSRNetLightning(pl.LightningModule):
     def __init__(self, config):
         super().__init__()
