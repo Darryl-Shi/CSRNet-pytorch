@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 import pytorch_lightning as pl
+from pytorch_lightning.loggers import WandbLogger
 
 from config import Config
 from model import CSRNet
@@ -48,6 +49,8 @@ import os
 if __name__ == "__main__":
     cfg = Config()
     model = CSRNetLightning(cfg)
+    wandb_logger = WandbLogger()
+    wandb_logger['project'] = 'crowd-counting'
 
     if os.environ.get("ENV") != "TEST":
       checkpoint_callback = pl.callbacks.ModelCheckpoint(
@@ -57,5 +60,5 @@ if __name__ == "__main__":
         mode='min',
         save_top_k=1,
       )
-      trainer = pl.Trainer(max_epochs=cfg.epochs, accelerator="gpu", callbacks=[checkpoint_callback])
+      trainer = pl.Trainer(max_epochs=cfg.epochs, accelerator="tpu", callbacks=[checkpoint_callback], logger=wandb_logger)
       trainer.fit(model)
