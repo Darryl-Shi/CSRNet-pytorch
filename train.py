@@ -62,6 +62,7 @@ import os
 if __name__ == "__main__":
     cfg = Config()
     model = CSRNetLightning(cfg)
+    logger=WandbLogger(project=cfg.project)
 
     if os.environ.get("ENV") != "TEST":
       checkpoint_callback = pl.callbacks.ModelCheckpoint(
@@ -71,5 +72,5 @@ if __name__ == "__main__":
         mode='min',
         save_top_k=1,
       )
-      trainer = pl.Trainer(max_epochs=cfg.epochs, accelerator="auto", devices="auto", callbacks=[checkpoint_callback])
+      trainer = pl.Trainer(max_epochs=cfg.epochs, accelerator="auto", devices="auto", callbacks=[checkpoint_callback], logger=logger)
       trainer.fit(model)
