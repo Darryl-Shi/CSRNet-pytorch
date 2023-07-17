@@ -15,6 +15,7 @@ class Config():
         self.checkpoints  = './checkpoints'     # checkpoints dir
         self.__mkdir(self.checkpoints)
         self.writer       = SummaryWriter() 
+        self.project      = 'csrnet'
 
     def __mkdir(self, path):
         '''
