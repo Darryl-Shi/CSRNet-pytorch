@@ -113,3 +113,4 @@ runs/
 *.ckpt
 wandb/
 lightning_logs/
+model.onnx
