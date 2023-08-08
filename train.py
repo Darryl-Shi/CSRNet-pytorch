@@ -14,14 +14,16 @@ from model import CSRNet
 from dataset import create_train_dataloader, create_test_dataloader
 from utils import denormalize
 
-if torch.cuda.is_available():
-    torch.set_float32_matmul_precision('medium')
+# if torch.cuda.is_available():
+#     torch.set_float32_matmul_precision('medium')
 
 class CSRNetLightning(pl.LightningModule):
-    def __init__(self, config):
+    def __init__(self, config, dropout, lr):
         super().__init__()
         self.config = config
-        self.model = CSRNet()
+        self.dropout = dropout
+        self.lr = lr
+        self.model = CSRNet(dropout=self.dropout)
         self.criterion = nn.MSELoss(size_average=False)
 
     def forward(self, x):
@@ -48,7 +50,7 @@ class CSRNetLightning(pl.LightningModule):
         return mae
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.lr)
+        optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr)
         return optimizer
 
     def train_dataloader(self):
@@ -60,10 +62,26 @@ class CSRNetLightning(pl.LightningModule):
 
 import os
 if __name__ == "__main__":
+    run = wandb.init()
+    sweep_config = {
+        'method': 'bayes',
+        'name': 'crowd-counting',
+        'metric': {
+            'goal': 'minimize',
+            'name': 'val_loss'
+        },
+        'parameters': {
+            'dropout': {'max': 0.5, 'min': 0.1},
+            'lr': {'max': 1e-2, 'min': 1e-5}
+        }
+    }
+    sweep_id=wandb.sweep(sweep_config, project="crowd-counting")
     cfg = Config()
-    model = CSRNetLightning(cfg)
+    lr = wandb.config.lr
+    dropout = wandb.config.dropout
     logger=WandbLogger(project=cfg.project)
-
+    model = CSRNetLightning(cfg, dropout, lr)
+    
     model_summary = pl.callbacks.ModelSummary(max_depth=10)
 
     if os.environ.get("ENV") != "TEST":
@@ -74,5 +92,12 @@ if __name__ == "__main__":
         mode='min',
         save_top_k=1,
       )
-      trainer = pl.Trainer(max_epochs=cfg.epochs, accelerator="auto", devices="auto", callbacks=[checkpoint_callback, model_summary], logger=logger, gradient_clip_val=0.5, gradient_clip_algorithm="value")
-      trainer.fit(model)
+    
+    
+    def train():
+        run = wandb.init()
+        trainer = pl.Trainer(max_epochs=cfg.epochs, accelerator="auto", devices="auto", callbacks=[checkpoint_callback, model_summary], logger=logger, gradient_clip_val=0.5, gradient_clip_algorithm="value")
+        trainer.fit(model)
+
+    
+    wandb.agent(sweep_id=sweep_id, function=train, count=10)
