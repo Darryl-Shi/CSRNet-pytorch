@@ -85,7 +85,7 @@ def create_train_dataloader(roots, use_flip, batch_size):
     dataloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True,num_workers=int(os.cpu_count()//2))
     return dataloader
 
-def create_test_dataloader(roots):
+def create_test_dataloader(root):
     '''
     Create train dataloader.
     root: the dataset root.
@@ -98,12 +98,7 @@ def create_test_dataloader(roots):
     # dataset = CrowdDataset(root=root, phase='test', main_transform=main_trans, 
     #                 img_transform=img_trans,dmap_transform=dmap_trans)
     # create a dataset for each root in roots, and concatenate them
-    datasets = []
-    for root in roots:
-      dataset = CrowdDataset(root=root, phase='test', main_transform=main_trans, img_transform=img_trans,dmap_transform=dmap_trans)
-      datasets.append(dataset)
-
-    dataset = torch.utils.data.ConcatDataset(datasets)
+    dataset = CrowdDataset(root=root, phase='test', main_transform=main_trans, img_transform=img_trans,dmap_transform=dmap_trans)
     dataloader = torch.utils.data.DataLoader(dataset,batch_size=1,shuffle=False,num_workers=int(os.cpu_count()//2))
     return dataloader
 

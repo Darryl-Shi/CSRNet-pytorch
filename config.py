@@ -15,6 +15,8 @@ class Config():
         self.__mkdir(self.checkpoints)
         self.writer       = SummaryWriter() 
         self.project      = 'crowd-counting'
+        self.sweep        = False
+        self.train        = False
 
     def __mkdir(self, path):
         '''

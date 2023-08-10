@@ -114,3 +114,4 @@ runs/
 wandb/
 lightning_logs/
 model.onnx
+output/prediction.pt
