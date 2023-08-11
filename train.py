@@ -15,6 +15,8 @@ from dataset import create_train_dataloader, create_test_dataloader
 import optuna
 from optuna.integration import PyTorchLightningPruningCallback
 from utils import denormalize
+import matplotlib.pyplot as plt
+import matplotlib.cm as CM
 
 if torch.cuda.is_available():
     torch.set_float32_matmul_precision('medium')
@@ -52,9 +54,11 @@ class CSRNetLightning(pl.LightningModule):
     
     def predict_step(self, batch, batch_idx):
         image = batch['image']
+        gt_dm = batch['densitymap']
         et_densitymap = self(image).detach()
-        et_densitymap=et_densitymap.squeeze(0).squeeze(0).cpu().numpy()
-        return et_densitymap
+        et_densitymap = et_densitymap.squeeze(0).squeeze(0).cpu().numpy()
+        gt_dm = gt_dm.squeeze(0).squeeze(0).cpu().numpy()
+        return [et_densitymap, gt_dm]
 
     def configure_optimizers(self):
         optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr)
@@ -138,12 +142,13 @@ if __name__ == "__main__":
             trainer.test()
 
     else:
-        data_loader = create_test_dataloader('data/part_A_final')
+        data_loader = create_test_dataloader('data/part_B_final')
         model = CSRNetLightning.load_from_checkpoint('checkpoints/epoch=156-val_mae=30.95.ckpt', config=cfg, lr=1e-4)
         trainer = pl.Trainer()
-        predictions = trainer.predict(model, data_loader)
-        print(predictions[0])
-        torch.save(predictions[0], "output/prediction.pt")
+        preds = trainer.predict(model, data_loader)
+        predictions, gt = preds[0][0], preds[0][1]
+        plt.imsave('output/test.png', predictions, cmap=CM.jet)
+        plt.imsave('output/gtdm.png', gt, cmap=CM.jet)
 
 
     
