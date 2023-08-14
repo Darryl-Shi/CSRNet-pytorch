@@ -1,6 +1,6 @@
 import torch
 import onnx
-from train import CSRNetLightning
+from main import CSRNetLightning
 from config import Config
 
 cfg = Config()

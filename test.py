@@ -7,7 +7,7 @@ import dataset
 from dataset import CrowdDataset
 from config import Config
 
-from train import CSRNetLightning
+from main import CSRNetLightning
 
 
 def cal_mae(root,model_param_path):

@@ -147,6 +147,7 @@ if __name__ == "__main__":
         trainer = pl.Trainer()
         preds = trainer.predict(model, data_loader)
         predictions, gt = preds[0][0], preds[0][1]
+        torch.save(predictions, 'output/predictions.pt')
         plt.imsave('output/test.png', predictions, cmap=CM.jet)
         plt.imsave('output/gtdm.png', gt, cmap=CM.jet)
 
