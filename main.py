@@ -55,6 +55,7 @@ class CSRNetLightning(pl.LightningModule):
     def predict_step(self, batch, batch_idx):
         image = batch['image']
         gt_dm = batch['densitymap']
+        print(image.shape)
         et_densitymap = self(image).detach()
         et_densitymap = et_densitymap.squeeze(0).squeeze(0).cpu().numpy()
         gt_dm = gt_dm.squeeze(0).squeeze(0).cpu().numpy()
@@ -143,7 +144,7 @@ if __name__ == "__main__":
 
     else:
         data_loader = create_test_dataloader('data/part_B_final')
-        model = CSRNetLightning.load_from_checkpoint('checkpoints/epoch=156-val_mae=30.95.ckpt', config=cfg, lr=1e-4)
+        model = CSRNetLightning.load_from_checkpoint('checkpoints/epoch=156-val_mae=30.95.ckpt', config=cfg, lr=1e-4, map_location='cpu')
         trainer = pl.Trainer()
         preds = trainer.predict(model, data_loader)
         predictions, gt = preds[0][0], preds[0][1]

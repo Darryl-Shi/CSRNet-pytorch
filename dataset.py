@@ -152,6 +152,30 @@ class PairedCrop(object):
         return (img, dmap)
 
 
+class SimpleCrop(object):
+    '''
+    Simple Crop for image based on a specified factor.
+    '''
+    def __init__(self, factor=16):
+        self.factor = factor
+
+    @staticmethod
+    def get_params(img, factor):
+        w, h = img.size
+        if w % factor == 0 and h % factor == 0:
+            return 0, 0, h, w
+        else:
+            return 0, 0, h - (h % factor), w - (w % factor)
+
+    def __call__(self, img):
+        '''
+        img: PIL.Image
+        '''
+        i, j, th, tw = self.get_params(img, self.factor)
+
+        img = F.crop(img, i, j, th, tw)
+        return img
+
 # testing code
 # if __name__ == "__main__":
 #     root = './data/part_B_final'
