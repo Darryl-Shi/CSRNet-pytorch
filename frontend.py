@@ -25,20 +25,24 @@ def setup():
     return model
 def infer(input):
     model = setup()
+    model.eval()
     with torch.no_grad():
-        input = input.astype(np.float32)
-        pil_image = Image.fromarray(input) 
+        #input = torch.from_numpy(input).permute(2,0,1).numpy()
+        pil_image = Image.fromarray(input)
+        print(pil_image.size)
+        pil_image = transforms.functional.crop(pil_image, 0, 0, 1024, 1024)
         plt.imsave('input.png', pil_image)
-        pil_image = transforms.functional.crop(pil_image, 0, 0, 40, 0)
         input = transform(pil_image)
-        input = np.array(input)
+        input = torch.from_numpy(input).unsqueeze(0)
         print(input.shape)
-        output = model(input)
+        output = model(input).detach()
+        print(output.shape)
         output = output.squeeze(0).squeeze(0).cpu().numpy()
         print(output.shape)
         count = np.sum(output)
         if os.path.exists('output.png'):
             os.remove('output.png')
+            plt.imsave('output.png', output, cmap=CM.jet)
         else:
             plt.imsave('output.png', output, cmap=CM.jet)
         return count
