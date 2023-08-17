@@ -13,11 +13,10 @@ from dataset import SimpleCrop
 from torchvision import transforms
 from PIL import Image
 
-
-transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5,0.5,0.5], std=[0.5,0.5,0.5])
-])
+# transform = torch.nn.Sequential(
+#     transforms.ToTensor(),
+#     transforms.Normalize(mean=[0.5,0.5,0.5], std=[0.5,0.5,0.5])
+# )
 
 def setup():
     config = Config()
@@ -28,16 +27,18 @@ def infer(input):
     model.eval()
     with torch.no_grad():
         #input = torch.from_numpy(input).permute(2,0,1).numpy()
-        pil_image = Image.fromarray(input)
-        print(pil_image.size)
-        pil_image = transforms.functional.crop(pil_image, 0, 0, 1024, 1024)
-        plt.imsave('input.png', pil_image)
-        input = transform(pil_image)
-        input = torch.from_numpy(input).unsqueeze(0)
-        print(input.shape)
+        # input.resize((720, 1080, 3))
+        print('1', input.shape)
+        plt.imsave('input.png', input)
+        input = torch.from_numpy(input.astype(np.float32)).unsqueeze(0)
+        input = input.permute(0, 3, 1, 2)
+
+
         output = model(input).detach()
-        print(output.shape)
+        print('3', output.shape)
+        plt.imsave('0output.png', output)
         output = output.squeeze(0).squeeze(0).cpu().numpy()
+        plt.imsave('output.png', output, cmap=CM.jet)
         print(output.shape)
         count = np.sum(output)
         if os.path.exists('output.png'):
@@ -53,4 +54,4 @@ demo = gr.Interface(fn=infer, inputs=[
     gr.Image(source="webcam", type="numpy", label="Webcam", streaming=True),
 ], outputs="number", title="Crowd Counting", description="Count the number of people in an image using a deep learning model.")
 
-demo.launch()
+demo.launch(show_error=True)
